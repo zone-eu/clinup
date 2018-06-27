@@ -4,7 +4,7 @@
 
 function help {
 
-	echo "WordPress cleanup -v 0.4 2017-05-19 / peeter@zone.ee
+	echo "WordPress cleanup -v 0.5 2018-06-26 / peeter@zone.ee
 
 Usage:
 
