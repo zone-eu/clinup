@@ -38,6 +38,7 @@ cleanup             all following cleanups:
   cleanup-misc      transients
   cleanup-git       remove .git and configs
   cleanup-https     search-replace for http > https move (keeping same domain)
+  cleanup-sessions	destroy login sessions for all users
 
 harden
   harden-uploads
@@ -50,6 +51,7 @@ rights              set file & folder rights to 644/755
 find-files          look for .php and <?php in uploads
 find-files-here     look for .php and <?php in current folder
 list-oldplugins     plugins not updted during past 15 minutest
+list-sessions		active login sessions and tokens (incl. expired) for users
 init-git            initialise git, do first commit
 init-key            create keypair for ssh
 "
@@ -472,6 +474,27 @@ function reset-passwords {
 	NEW_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 	wp user update $(wp user list --field=id) --user_pass=$NEW_PASSWORD
 	echo "All passwords set to $NEW_PASSWORD"
+}
+
+function list-sessions {
+	users=$(wp user list --field=id | sort)
+
+	for user in $users; do
+	  echo "Active sessions for user $user:"
+	  wp user session list $user
+	  echo "session_tokens (active and expired) for user $user:"
+	  wp user meta get $user session_tokens
+	  
+	done
+}
+
+function cleanup-sessions {
+	users=$(wp user list --field=id | sort)
+
+	for user in $users; do
+	  echo "Destrotying sessions for user $user:"
+	  wp user session destroy $user --all	  
+	done
 }
 
 function harden-uploads {
